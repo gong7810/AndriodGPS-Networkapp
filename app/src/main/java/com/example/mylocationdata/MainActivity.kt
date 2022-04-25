@@ -21,11 +21,15 @@ import java.nio.ByteBuffer
 open class NetworkThread : Thread() {
     private var mLocation: Location? = null
     private var mIsLocationUnsynchronized: Boolean = false
+    private var flag = true
 
     open fun requestToSynchronize(location: Location) {
         mLocation = location
         mIsLocationUnsynchronized = true
         Log.d("1", "1번째")
+    }
+    open fun requestToStop() {
+        this.flag = false
     }
 
     override fun run() {
@@ -46,16 +50,30 @@ open class NetworkThread : Thread() {
         while (true) {
             Log.d("3", "3번째")
             if (mIsLocationUnsynchronized) {
-                Log.d("4", "4번째")
-                val buffer = ByteBuffer.allocate(24)
-                buffer.putDouble(mLocation!!.latitude)
-                buffer.putDouble(mLocation!!.longitude)
-                buffer.putDouble(mLocation!!.altitude)
+                if (this.flag == true){
+                    Log.d("4", "4번째")
+                    val buffer = ByteBuffer.allocate(24)
+                    buffer.putDouble(mLocation!!.latitude)
+                    buffer.putDouble(mLocation!!.longitude)
+                    buffer.putDouble(mLocation!!.altitude)
 
-                try {
-                    socketOutputStream.write(buffer.array())
-                } catch (e: Exception) {
-                    e.printStackTrace()
+                    try {
+                        socketOutputStream.write(buffer.array())
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                } else if(this.flag == false){
+                    val buffer = ByteBuffer.allocate(24)
+                    buffer.putDouble(0.0)
+                    buffer.putDouble(0.0)
+                    buffer.putDouble(0.0)
+                    try {
+                        socketOutputStream.write(buffer.array())
+                        System.runFinalization()
+                        System.exit(0)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
                 }
             }
 
@@ -77,6 +95,7 @@ class MainActivity : AppCompatActivity() {
     private val RequestPermissionLocation: Int = 10 //권한설정을 확인하기 위해 임의로 설정한 상수
 
     private lateinit var button: Button
+    private lateinit var button2: Button
     private lateinit var text1: TextView
     private lateinit var text2: TextView
     private lateinit var text3: TextView
@@ -86,6 +105,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         button = findViewById(R.id.button)
+        button2 = findViewById(R.id.button2)
         text1 = findViewById(R.id.text1)
         text2 = findViewById(R.id.text2)
         text3 = findViewById(R.id.text3)
@@ -99,6 +119,12 @@ class MainActivity : AppCompatActivity() {
         button.setOnClickListener {
             if (checkPermissionForLocation(this)) {
                 startLocationUpdates()
+            }
+        }
+
+        button2.setOnClickListener{
+            if(checkPermissionForLocation(this)){
+                mNetworkThread!!.requestToStop()
             }
         }
     }
