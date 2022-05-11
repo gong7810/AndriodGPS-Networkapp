@@ -102,13 +102,17 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.activity_main2)
 
+/* activity_main UI
         button = findViewById(R.id.button)
         button2 = findViewById(R.id.button2)
         text1 = findViewById(R.id.text1)
         text2 = findViewById(R.id.text2)
         text3 = findViewById(R.id.text3)
+*/
+        button = findViewById(R.id.call)
+        button2 = findViewById(R.id.back)
 
         mLocationRequest = LocationRequest.create().apply {
             priority = LocationRequest.PRIORITY_HIGH_ACCURACY
@@ -164,10 +168,11 @@ class MainActivity : AppCompatActivity() {
     // 시스템으로 부터 받은 위치정보를 화면에 갱신해주는 메소드
     fun onLocationChanged(location: Location) {
         mLastLocation = location
+        /*  지도를 뺌으로 삭제
         text1.text = "위도 : " + mLastLocation.latitude // 갱신 된 위도
         text2.text = "경도 : " + mLastLocation.longitude // 갱신 된 경도
         text3.text = "고도 : " + mLastLocation.altitude // 갱신 된 고도
-
+        */
         if (mNetworkThread == null) { //초기화 되있기때문에 if문 통과
             mNetworkThread = NetworkThread()
             mNetworkThread!!.start()
