@@ -22,6 +22,7 @@ open class NetworkThread : Thread() {
     private var mLocation: Location? = null
     private var mIsLocationUnsynchronized: Boolean = false
     private var flag = true
+    private var count = 0.0
 
     open fun requestToSynchronize(location: Location) {
         mLocation = location
@@ -38,7 +39,7 @@ open class NetworkThread : Thread() {
         Log.d("2", "2번째")
 
         try {
-            val ip = "203.255.57.129"
+            val ip = "58.123.71.18"
             val port = 9999
 
             socket = Socket(ip, port)
@@ -52,21 +53,24 @@ open class NetworkThread : Thread() {
             if (mIsLocationUnsynchronized) {
                 if (this.flag == true){
                     Log.d("4", "4번째")
-                    val buffer = ByteBuffer.allocate(24)
+                    val buffer = ByteBuffer.allocate(32)
                     buffer.putDouble(mLocation!!.latitude)
                     buffer.putDouble(mLocation!!.longitude)
                     buffer.putDouble(mLocation!!.altitude)
+                    buffer.putDouble(count)
 
                     try {
                         socketOutputStream.write(buffer.array())
+                        count += 1.0
                     } catch (e: Exception) {
                         e.printStackTrace()
                     }
                 } else if(this.flag == false){
-                    val buffer = ByteBuffer.allocate(24)
+                    val buffer = ByteBuffer.allocate(32)
                     buffer.putDouble(0.0)
                     buffer.putDouble(0.0)
                     buffer.putDouble(0.0)
+                    buffer.putDouble(count)
                     try {
                         socketOutputStream.write(buffer.array())
                         System.runFinalization()
@@ -80,7 +84,7 @@ open class NetworkThread : Thread() {
             mLocation = null
             mIsLocationUnsynchronized = false
             Log.d("5", "5번째")
-            sleep(10000) //샘플링 주기 = 서버에서 수신받는 주기
+            sleep(100) //샘플링 주기 = 서버에서 수신받는 주기
 
         }
     }
@@ -96,6 +100,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var button: Button
     private lateinit var button2: Button
+    private lateinit var button3: Button
     private lateinit var text1: TextView
     private lateinit var text2: TextView
     private lateinit var text3: TextView
@@ -113,10 +118,11 @@ class MainActivity : AppCompatActivity() {
 */
         button = findViewById(R.id.call)
         button2 = findViewById(R.id.back)
+        button3 = findViewById(R.id.emergency)
 
         mLocationRequest = LocationRequest.create().apply {
             priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-            interval = 10000 //화면에 표시되는 위치 갱신주기 단위는 ms
+            interval = 100 //화면에 표시되는 위치 갱신주기 단위는 ms
         }
 
         //버튼 이벤트를 통해 현재 위치
