@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
+import android.media.MediaPlayer
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -97,14 +98,16 @@ class MainActivity : AppCompatActivity() {
     private lateinit var mLocationRequest: LocationRequest // 위치 정보 요청의 매개변수를 저장하는 변수
     private var mNetworkThread: NetworkThread? = null// 소켓통신 스레드 객체
     private val RequestPermissionLocation: Int = 10 //권한설정을 확인하기 위해 임의로 설정한 상수
+    private var mediaPlayer : MediaPlayer? = null
 
     private lateinit var button: Button
     private lateinit var button2: Button
     private lateinit var button3: Button
+/*  지도를 뺌으로서 삭제
     private lateinit var text1: TextView
     private lateinit var text2: TextView
     private lateinit var text3: TextView
-
+*/
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main2)
@@ -137,6 +140,23 @@ class MainActivity : AppCompatActivity() {
                 mNetworkThread!!.requestToStop()
             }
         }
+
+        button3.setOnClickListener{
+            if (mediaPlayer == null) {
+                mediaPlayer = MediaPlayer.create(this, R.raw.siren)
+            }
+            if (mediaPlayer?.isPlaying == true) {
+                mediaPlayer?.pause()
+            } else {
+                mediaPlayer?.start()
+            }
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        mediaPlayer?.release()
+        mediaPlayer = null
     }
 
     private fun startLocationUpdates() {
