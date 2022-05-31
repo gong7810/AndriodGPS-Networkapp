@@ -28,7 +28,6 @@ open class NetworkThread : Thread() {
     open fun requestToSynchronize(location: Location) {
         mLocation = location
         mIsLocationUnsynchronized = true
-        Log.d("1", "1번째")
     }
     open fun requestToStop() {
         this.flag = false
@@ -37,7 +36,6 @@ open class NetworkThread : Thread() {
     override fun run() {
         lateinit var socket: Socket
         lateinit var socketOutputStream: DataOutputStream
-        Log.d("2", "2번째")
 
         try {
             val ip = "58.123.71.18"
@@ -50,10 +48,8 @@ open class NetworkThread : Thread() {
         }
 
         while (true) {
-            Log.d("3", "3번째")
             if (mIsLocationUnsynchronized) {
                 if (this.flag == true){
-                    Log.d("4", "4번째")
                     val buffer = ByteBuffer.allocate(32)
                     buffer.putDouble(mLocation!!.latitude)
                     buffer.putDouble(mLocation!!.longitude)
@@ -68,6 +64,7 @@ open class NetworkThread : Thread() {
                     }
                 } else if(this.flag == false){
                     val buffer = ByteBuffer.allocate(32)
+                    count = -1.0        // 복귀 버튼을 누르면 index를 -1로 전송
                     buffer.putDouble(0.0)
                     buffer.putDouble(0.0)
                     buffer.putDouble(0.0)
@@ -84,7 +81,6 @@ open class NetworkThread : Thread() {
 
             mLocation = null
             mIsLocationUnsynchronized = false
-            Log.d("5", "5번째")
             sleep(100) //샘플링 주기 = 서버에서 수신받는 주기
 
         }
